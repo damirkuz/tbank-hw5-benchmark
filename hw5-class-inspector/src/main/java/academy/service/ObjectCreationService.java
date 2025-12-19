@@ -230,13 +230,14 @@ public class ObjectCreationService {
                     field.setAccessible(true);
                     Object value = create(field.getType(), depth + 1, cache);
                     field.set(instance, value);
-                } catch (Exception e) {
-                    // Игнорируем ошибки установки полей
+                } catch (IllegalAccessException | SecurityException e) {
+                    // Игнорируем ошибки установки полей, которые недоступны для модификации
                 }
             }
             clazz = clazz.getSuperclass();
         }
     }
+
 
     private boolean isWrapperType(Class<?> clazz) {
         return clazz == Boolean.class
