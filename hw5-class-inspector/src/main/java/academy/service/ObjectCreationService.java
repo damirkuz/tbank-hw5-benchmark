@@ -230,8 +230,10 @@ public class ObjectCreationService {
                     field.setAccessible(true);
                     Object value = create(field.getType(), depth + 1, cache);
                     field.set(instance, value);
-                } catch (IllegalAccessException | SecurityException e) {
-                    // Игнорируем ошибки установки полей, которые недоступны для модификации
+                } catch (IllegalAccessException e) {
+                    throw new ObjectCreationException("Не удалось установить значение поля: " + field.getName(), e);
+                } catch (SecurityException e) {
+                    continue;
                 }
             }
             clazz = clazz.getSuperclass();
