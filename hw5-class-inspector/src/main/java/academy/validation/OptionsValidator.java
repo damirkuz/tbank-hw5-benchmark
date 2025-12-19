@@ -6,9 +6,7 @@ public class OptionsValidator {
 
     public static void validate(CliOptions options) {
         if (options.className() == null || options.className().isEmpty()) {
-            throw new IllegalArgumentException(
-                "Параметр --class обязателен для заполнения"
-            );
+            throw new IllegalArgumentException("Параметр --class обязателен для заполнения");
         }
     }
 }

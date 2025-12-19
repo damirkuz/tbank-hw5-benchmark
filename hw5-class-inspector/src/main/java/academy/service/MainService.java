@@ -26,9 +26,7 @@ public class MainService {
         try {
             return Class.forName(className);
         } catch (ClassNotFoundException e) {
-            throw new academy.exception.ClassNotFoundInspectorException(
-                "Класс не найден: " + className, e
-            );
+            throw new academy.exception.ClassNotFoundInspectorException("Класс не найден: " + className, e);
         }
     }
 }

@@ -14,18 +14,14 @@ public class Application implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(Application.class);
 
     @Option(
-        names = {"--class", "-c"},
-        description = "Полное имя класса"
-    )
+            names = {"--class", "-c"},
+            description = "Полное имя класса")
     String className;
 
     @Option(
-        names = {"--format", "-f"},
-        description = "Формат вывода результатов"
-
-    )
+            names = {"--format", "-f"},
+            description = "Формат вывода результатов")
     String format;
-
 
     public static void main(String[] args) {
         CommandLine cmd = new CommandLine(new Application());

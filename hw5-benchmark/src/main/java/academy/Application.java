@@ -1,32 +1,31 @@
 package academy;
 
+import org.openjdk.jmh.results.format.ResultFormatType;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-import picocli.CommandLine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@CommandLine.Command(name = "Benchmark run", version = "1.0", mixinStandardHelpOptions = true)
-public class Application implements Runnable {
+public class Application {
+    private static final Logger log = LoggerFactory.getLogger(Application.class);
 
     public static void main(String[] args) {
-        int exitCode = new CommandLine(new Application()).execute(args);
-        System.exit(exitCode);
-    }
+        log.info("Запуск бенчмарков производительности");
 
-    @Override
-    public void run() {
-        // реализуйте логику по запуску бенчмарка,
-        // ниже пример сравнения конкатениации строк
-
-        Options opt = new OptionsBuilder()
-                .include(StringConcatBenchmark.class.getSimpleName())
+        Options options = new OptionsBuilder()
+                .include(MethodInvocationBenchmark.class.getSimpleName())
+                .resultFormat(ResultFormatType.TEXT)
+                .result("benchmark-results.txt")
                 .build();
 
         try {
-            new Runner(opt).run();
+            new Runner(options).run();
+            log.info("Бенчмарки успешно завершены. Результаты сохранены в benchmark-results.txt");
         } catch (RunnerException e) {
-            throw new RuntimeException(e);
+            log.error("Ошибка при выполнении бенчмарков", e);
+            System.exit(1);
         }
     }
 }

@@ -1,9 +1,9 @@
 package academy;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import academy.sample.Person;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class ClassInspectorTest {
 

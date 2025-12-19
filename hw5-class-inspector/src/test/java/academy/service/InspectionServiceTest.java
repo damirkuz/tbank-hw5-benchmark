@@ -1,13 +1,13 @@
 package academy.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import academy.entity.ClassInfo;
 import academy.entity.FieldInfo;
 import academy.entity.MethodInfo;
 import academy.sample.Person;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class InspectionServiceTest {
     private InspectionService inspectionService;
@@ -37,18 +37,14 @@ class InspectionServiceTest {
     void inspectClass_shouldReturnFields() {
         ClassInfo result = inspectionService.inspectClass(Person.class);
 
-        assertThat(result.fields())
-            .extracting(FieldInfo::name)
-            .contains("name", "age");
+        assertThat(result.fields()).extracting(FieldInfo::name).contains("name", "age");
     }
 
     @Test
     void inspectClass_shouldReturnMethods() {
         ClassInfo result = inspectionService.inspectClass(Person.class);
 
-        assertThat(result.methods())
-            .extracting(MethodInfo::name)
-            .contains("getName", "setName", "getAge", "setAge");
+        assertThat(result.methods()).extracting(MethodInfo::name).contains("getName", "setName", "getAge", "setAge");
     }
 
     @Test

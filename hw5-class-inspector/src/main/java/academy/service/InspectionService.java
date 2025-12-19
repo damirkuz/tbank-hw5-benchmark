@@ -3,7 +3,6 @@ package academy.service;
 import academy.entity.ClassInfo;
 import academy.entity.FieldInfo;
 import academy.entity.MethodInfo;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -25,15 +24,7 @@ public class InspectionService {
         List<String> annotations = getAnnotations(clazz);
         Map<String, Object> hierarchy = buildHierarchy(clazz);
 
-        return new ClassInfo(
-            className,
-            superclass,
-            interfaces,
-            fields,
-            methods,
-            annotations,
-            hierarchy
-        );
+        return new ClassInfo(className, superclass, interfaces, fields, methods, annotations, hierarchy);
     }
 
     private String getSuperclassName(Class<?> clazz) {
@@ -42,43 +33,39 @@ public class InspectionService {
     }
 
     private List<String> getInterfaces(Class<?> clazz) {
-        return Arrays.stream(clazz.getInterfaces())
-            .map(Class::getSimpleName)
-            .collect(Collectors.toList());
+        return Arrays.stream(clazz.getInterfaces()).map(Class::getSimpleName).collect(Collectors.toList());
     }
 
     private List<FieldInfo> getFields(Class<?> clazz) {
         return Arrays.stream(clazz.getDeclaredFields())
-            .map(field -> new FieldInfo(
-                getAccessModifier(field.getModifiers()),
-                field.getName(),
-                field.getType().getSimpleName()
-            ))
-            .collect(Collectors.toList());
+                .map(field -> new FieldInfo(
+                        getAccessModifier(field.getModifiers()),
+                        field.getName(),
+                        field.getType().getSimpleName()))
+                .collect(Collectors.toList());
     }
 
     private List<MethodInfo> getMethods(Class<?> clazz) {
         return Arrays.stream(clazz.getDeclaredMethods())
-            .map(method -> new MethodInfo(
-                getAccessModifier(method.getModifiers()),
-                method.getName(),
-                getParameterTypes(method),
-                method.getReturnType().getSimpleName()
-            ))
-            .collect(Collectors.toList());
+                .map(method -> new MethodInfo(
+                        getAccessModifier(method.getModifiers()),
+                        method.getName(),
+                        getParameterTypes(method),
+                        method.getReturnType().getSimpleName()))
+                .collect(Collectors.toList());
     }
 
     private List<String> getParameterTypes(Method method) {
         return Arrays.stream(method.getParameterTypes())
-            .map(Class::getSimpleName)
-            .collect(Collectors.toList());
+                .map(Class::getSimpleName)
+                .collect(Collectors.toList());
     }
 
     private List<String> getAnnotations(Class<?> clazz) {
         return Arrays.stream(clazz.getAnnotations())
-            .map(Annotation::annotationType)
-            .map(Class::getSimpleName)
-            .collect(Collectors.toList());
+                .map(Annotation::annotationType)
+                .map(Class::getSimpleName)
+                .collect(Collectors.toList());
     }
 
     private String getAccessModifier(int modifiers) {

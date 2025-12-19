@@ -1,7 +1,6 @@
 package academy.sample;
 
 import jakarta.persistence.Entity;
-
 import java.io.Serializable;
 
 @Entity
@@ -9,8 +8,7 @@ public class Person extends Human implements Serializable {
     private String name;
     private int age;
 
-    public Person() {
-    }
+    public Person() {}
 
     public Person(String name, int age) {
         this.name = name;

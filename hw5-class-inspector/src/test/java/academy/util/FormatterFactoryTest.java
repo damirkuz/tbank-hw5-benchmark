@@ -1,10 +1,10 @@
 package academy.util;
 
-import academy.exception.UnsupportedFormatException;
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import academy.exception.UnsupportedFormatException;
+import org.junit.jupiter.api.Test;
 
 class FormatterFactoryTest {
 
@@ -32,7 +32,7 @@ class FormatterFactoryTest {
     @Test
     void getFormatter_withInvalidFormat_shouldThrowException() {
         assertThatThrownBy(() -> FormatterFactory.getFormatter("XML"))
-            .isInstanceOf(UnsupportedFormatException.class)
-            .hasMessageContaining("Неподдерживаемый формат");
+                .isInstanceOf(UnsupportedFormatException.class)
+                .hasMessageContaining("Неподдерживаемый формат");
     }
 }

@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.ParameterException;
 
-
 public class CommandLineExceptionHandler implements CommandLine.IParameterExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(CommandLineExceptionHandler.class);
 

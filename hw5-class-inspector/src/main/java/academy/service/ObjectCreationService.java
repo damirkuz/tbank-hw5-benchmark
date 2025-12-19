@@ -1,13 +1,10 @@
 package academy.service;
 
 import academy.exception.ObjectCreationException;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -108,7 +105,6 @@ public class ObjectCreationService {
         return sb.toString();
     }
 
-    @SuppressWarnings("unchecked")
     private <T> T createEnum(Class<T> clazz) {
         T[] constants = clazz.getEnumConstants();
         if (constants != null && constants.length > 0) {
@@ -191,9 +187,7 @@ public class ObjectCreationService {
 
             return instance;
         } catch (Exception e) {
-            throw new ObjectCreationException(
-                "Не удалось создать экземпляр класса: " + clazz.getName(), e
-            );
+            throw new ObjectCreationException("Не удалось создать экземпляр класса: " + clazz.getName(), e);
         }
     }
 
@@ -245,9 +239,14 @@ public class ObjectCreationService {
     }
 
     private boolean isWrapperType(Class<?> clazz) {
-        return clazz == Boolean.class || clazz == Byte.class || clazz == Short.class
-            || clazz == Integer.class || clazz == Long.class || clazz == Float.class
-            || clazz == Double.class || clazz == Character.class;
+        return clazz == Boolean.class
+                || clazz == Byte.class
+                || clazz == Short.class
+                || clazz == Integer.class
+                || clazz == Long.class
+                || clazz == Float.class
+                || clazz == Double.class
+                || clazz == Character.class;
     }
 
     private boolean isDateType(Class<?> clazz) {

@@ -13,8 +13,8 @@ public class ExitCodeMapper implements IExitCodeExceptionMapper {
         //        - `2` - некорректное использование программы (неверные параметры, отсутствие файлов и т.д.)
 
         if (t instanceof ClassNotFoundInspectorException
-            || t instanceof UnsupportedFormatException
-            || t instanceof IllegalArgumentException) {
+                || t instanceof UnsupportedFormatException
+                || t instanceof IllegalArgumentException) {
             return 2;
         }
         return 1;

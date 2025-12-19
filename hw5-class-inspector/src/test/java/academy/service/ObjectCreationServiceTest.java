@@ -1,10 +1,10 @@
 package academy.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import academy.sample.Person;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class ObjectCreationServiceTest {
     private ObjectCreationService creationService;
