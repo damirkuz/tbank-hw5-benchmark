@@ -1,235 +1,74 @@
-# Проект №5
+# JMH-бенчмарки и ClassInspector
 
-В проекте требуется реализовать два крупных блока функциональности:
+Учебный проект №5 курса backend-разработки Т-Банка (ИТИС): два модуля — микробенчмарки на JMH, сравнивающие разные способы вызова метода и конкатенации строк, и консольная утилита ClassInspector на Reflection API, которая анализирует структуру класса и генерирует заполненные экземпляры объектов.
 
-1. Бенчмарк-тесты, сравнивающие производительность различных способов вызова методов и решения типовых задач (в зависимости от языка).
-2. Утилиту ClassInspector, которая анализирует структуру типа, строит иерархию наследования, выводит данные в текстовом и JSON-форматах, а также генерирует экземпляры классов по аналогии с `Instancio.create()`.
+## Модуль hw5-benchmark
 
-## 1. Бенчмарки производительности
+Бенчмарки JMH 1.37 (AverageTime, ns/op, прогрев и замеры 5 × 2 с, Blackhole против оптимизаций JIT):
 
-Бенчмарк-тесты обеспечивают объективный, измеримый ориентир для сравнения и оценки производительности. Они устанавливают четкие ожидания и позволяют проводить сравнительный анализ результатов.
+- `MethodInvocationBenchmark` — четыре способа вызова `Student#name()`:
+  1. прямой вызов
+  2. `java.lang.reflect.Method` (`clazz.getMethod(...)`)
+  3. `MethodHandles` (`MethodHandles.lookup().findVirtual(...)`)
+  4. `LambdaMetafactory.metafactory(...)`
+- `StringConcatBenchmark` — конкатенация строк оператором `+` против `StringBuilder`.
 
-В этом задании вам потребуется написать тесты и провести сравнительное испытание для разных способов вызова метода.
-
-### Общие требования
-
-* Написать набор бенчмарк-тестов для каждого варианта.
-* Использовать профильный фреймворк измерения производительности: JMH или аналогичный - для других языков.
-* Подготовительная работа должна выполняться в setup-методах.   
-  Для разных способов вызова метода потребуется вызвать `clazz.getMethod(...)`, `MethodHandles.lookup().findVirtual(...)`, `LambdaMetafactory.metafactory(...)`
-* Использовать механизм "чёрной дыры" (Blackhole или аналог), чтобы исключить оптимизации компилятора/интерпретатора.
-* Длительность прогонов должна позволять получить стабильные результаты.
-* Опубликовать итоговую таблицу с результатами.
-
-### Сценарий тестирования
-
-Реализовать бенчмарки для четырёх вариантов вызова метода `Student#name()`:
-
-* прямой вызов
-* java.lang.reflect.Method
-* MethodHandles
-* LambdaMetafactory
-
-### Инструкции по реализации
-
-* Замеры производительности следует выполнять с использованием одинаковых вычислительных ресурсов, при низкой нагрузке на тестовую платформу.
-* Весь код получения reflection-объектов, method handles, regexp, сериализаторов и т.д. вынести в setup.
-* В каждом тестовом методе вызывать blackhole.consume(), чтобы исключить оптимизацию выполнения.
-* Прогревочные итерации + измерения должны быть явно заданы.
-* Обеспечить длительные и стабильные прогоны.
-* Зафиксировать итоговую таблицу результатов в отдельном файле и приложить к основному MR.
-
-#### Пример сформированной таблицы:
+Фактические результаты зафиксированы в `hw5-benchmark/benchmark-results.txt`:
 
 ```text
-Benchmark                                      Mode  Cnt     Score     Error  Units
-StringConcatBenchmark.benchmarkStringAddition  avgt    5  1184,626 ± 149,152  ns/op
-StringConcatBenchmark.benchmarkStringBuilder   avgt    5   235,312 ±  36,325  ns/op
+Benchmark                                              Mode  Cnt  Score   Error  Units
+MethodInvocationBenchmark.directInvocation             avgt    5  0,647 ± 0,025  ns/op
+MethodInvocationBenchmark.lambdaMetafactoryInvocation  avgt    5  0,949 ± 0,220  ns/op
+MethodInvocationBenchmark.methodHandleInvocation       avgt    5  3,172 ± 0,447  ns/op
+MethodInvocationBenchmark.reflectionInvocation         avgt    5  6,044 ± 0,366  ns/op
 ```
 
-### Полезные ссылки
+## Модуль hw5-class-inspector
 
-1. https://www.baeldung.com/java-microbenchmark-harness
-2. https://habr.com/ru/companies/sberbank/articles/814299/
-3. https://davidvlijmincx.com/posts/benchmark-and-profile-java/
-4. https://jenkov.com/tutorials/java-performance/jmh.html
+Консольная утилита на picocli:
 
-## 2. Утилита ClassInspector
+- `--class, -c` — полное имя класса; `--format, -f` — формат вывода `TEXT` или `JSON` (Jackson).
+- Анализ класса: имя, суперкласс, интерфейсы, поля (модификаторы, имена, типы), методы (модификаторы, параметры, возвращаемый тип), аннотации класса и членов, дерево иерархии наследования.
+- `create(Class<T>)` — генерация объекта со случайными значениями полей (аналог `Instancio.create`): строки, числа, boolean, даты, коллекции, массивы, рекурсивные вложенные объекты с ограничением глубины.
+- Fail-fast: ошибки транслируются в коды возврата — `0` успех, `1` непредвиденная ошибка, `2` неверные параметры запуска.
+- Логирование Log4j2, юнит-тесты (JUnit, AssertJ).
 
-Утилита должна анализировать любой класс/тип, собирать информацию о его структуре, строить дерево наследования, а также создавать заполненные экземпляры классов.
+## Технологии
 
-### Функциональные требования
+- Java 24, многомодульный Maven (wrapper)
+- JMH 1.37, picocli 4.7.7, Jackson 2.19.2, Log4j2 2.25.1
+- Тесты: JUnit Jupiter, AssertJ, Awaitility, Instancio; JaCoCo
+- Статический анализ: SpotBugs, PMD, Spotless; CI — GitLab CI
 
-Программа должна представлять собой утилиту командной строки, которая принимает на вход следующие параметры:
+## Запуск
 
-* --class, -c - полное имя класса.  
-  Программа должна завершать свою работу с ошибкой, если класс по переданному имени не найден
-* --format, -f - необязательный параметр, указывающий на формат вывода результатов.
-  * необходимо реализовать поддержку следующих форматов:
-    * TEXT
-    * JSON
-  * утилита должна завершать свою работу с ошибкой, если на вход передан неподдерживаемый формат
+```bash
+./mvnw clean package -DskipTests
 
-При реализации не забывайте, что программа представляет собой консольную утилиту.
-Поэтому, любое исключение в приложении должно транслироваться в соответствующий код возврата:
+# бенчмарки (результаты дописываются в hw5-benchmark/benchmark-results.txt)
+./mvnw -pl hw5-benchmark compile exec:java -Dexec.mainClass=academy.Application
 
-* 0 - программа успешно завершила свою работу
-* 1 - непредвиденная ошибка
-* 2 - некорректное использование программы (неверные параметры)
+# инспектор
+./mvnw -pl hw5-class-inspector compile exec:java \
+  -Dexec.mainClass=academy.app.Application \
+  -Dexec.args="--class academy.sample.Employee --format TEXT"
 
-Пример запуска программы:
-`java -jar hw5-class-inspector.jar --class java.util.ArrayList --format TEXT`
-
-### Анализ класса
-
-#### Сигнатура метода
-
-`public static String inspect(Class<?> clazz, String format)`
-
-#### Функционал анализа:
-
-* Имя класса (полное квалифицированное имя)
-* Родительский класс (если есть)
-* Интерфейсы / трейты / протоколы
-* Поля:
-  - модификаторы доступа (public, private, protected)
-  - имя
-  - тип
-* Методы:
-  - модификаторы доступа
-  - имя
-  - параметры (тип и порядок)
-  - возвращаемый тип
-* Аннотации класса и его членов
-* Иерархия наследования в виде дерева
-
-#### Форматы вывода:
-
-##### **TEXT**
-
-```
-Class: Person
-Superclass: Human
-Interfaces:
-  - Serializable
-Fields:
-  - private name (String)
-  - private age (int)
-Methods:
-  - public getName() : String
-  - public setName(String) : void
-  - public getAge() : int
-  - public setAge(int) : void
-Annotations:
-  - @Entity
-Hierarchy:
-  Human
-    └── Person
-          └── Employee
-                 └── Manager
+# тесты
+./mvnw test
 ```
 
-##### **JSON**
+## Структура проекта
 
-```json
-{
-  "class": "Person",
-  "superclass": "Human",
-  "interfaces": ["Serializable"],
-  "fields": [
-    { "access": "private", "name": "name", "type": "String" },
-    { "access": "private", "name": "age", "type": "int" }
-  ],
-  "methods": [
-    { "access": "public", "name": "getName", "params": [], "returnType": "String" },
-    { "access": "public", "name": "setName", "params": ["String"], "returnType": "void" },
-    { "access": "public", "name": "getAge", "params": [], "returnType": "int" },
-    { "access": "public", "name": "setAge", "params": ["int"], "returnType": "void" }
-  ],
-  "annotations": ["Entity"],
-  "hierarchy": {
-    "Human": {
-      "Person": {
-        "Employee": {
-          "Manager": {}
-        }
-      }
-    }
-  }
-}
 ```
-
-#### Пример вызова функции
-
-```java
-@Entity
-public class Person extends Human implements Named {
-    private String name;
-    private int age;
-
-    //getter-ы and setter-ы опущены для краткости
-}
-
-    String result = ClassInspector.inspect(Person.class, "TEXT");
-    System.out.println(result);
+hw5-benchmark/
+  src/main/java/academy/            # Application (JMH Runner), MethodInvocationBenchmark, StringConcatBenchmark
+  benchmark-results.txt             # итоговая таблица замеров
+hw5-class-inspector/
+  src/main/java/academy/
+    app/                            # точка входа на picocli (Application, CliOptions)
+    service/                        # анализ класса и генерация объектов
+    entity/                         # ClassInfo, MethodInfo, FieldInfo, FormatType
+    util/                           # текстовый и JSON-форматтеры
+    exception/, validation/         # доменные исключения, маппинг кодов выхода
+    sample/                         # демо-иерархия Human → Person → Employee → Manager
 ```
-
-### Создание экземпляров классов
-
-Метод должен создавать объект и автоматически заполнять его поля случайными значениями
-(аналог `Instancio.create(Class)`).
-
-#### Сигнатура метода
-
-`public static <T> T create(Class<T> clazz)`
-
-### Нефункциональные требования
-
-Форматы вывода должны строго соответствовать описанному шаблону.
-Генерация значений должна поддерживать:
-- строки
-- числа
-- булевые
-- даты
-- вложенные объекты
-- коллекции/списки/массивы
-
-### Инструкции по реализации
-
-#### Анализ класса
-
-* Использовать Reflection API для получения (+ полезные ссылки):
-  * Class.forName(String) для получения объекта-рефлексии класса
-  * clazz.getName() - имя класса
-  * clazz.getSuperclass() - суперкласс
-  * clazz.getInterfaces() - интерфейсы
-  * clazz.getDeclaredFields() - поля
-  * clazz.getDeclaredMethods() - методы
-  * clazz.getAnnotations() - аннотации
-  * clazz.getPermittedSubclasses() - для поиска потомков
-* Форматирование вывода
-  * [TEXT](#TEXT): использовать StringBuilder для построчного формирования
-  * [JSON](#JSON): создать структуру и сериализовать (использовать Jackson)
-
-#### Создание экземпляров
-
-Алгоритм создания нового объекта:
-
-- находить конструктор
-- заполнять примитивы и строки случайными значениями
-- рекурсивно создавать вложенные объекты
-- ограничивать глубину вложенности
-
-### Полезные ссылки
-
-1. https://www.baeldung.com/java-reflection
-2. https://www.baeldung.com/java-find-all-classes-in-package
-3. https://habr.com/ru/companies/otus/articles/764244/
-4. https://habr.com/ru/articles/318418/
-5. https://blog.skillfactory.ru/glossary/java-reflection-api/
-6. https://dev.java/learn/reflection/
-7. https://www.instancio.org/user-guide/#creating-objects
-
-## Критерии оценки
-
-Общее кол-во баллов за работу - 100 баллов
